@@ -1,36 +1,22 @@
 import './pages/todoPage.dart';
-
-import './states/todoState.dart';
-
-import 'states/themeState.dart';
-import 'pages/homePage.dart';
 import 'pages/codeViewerPage.dart';
 import 'package:flutter/material.dart';
-import 'package:ajwah_bloc/ajwah_bloc.dart';
 
 void main() {
-  createStore(exposeApiGlobally: true);
-  registerThemeState();
-  registerTodoState();
   runApp(App());
 }
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Brightness>(
-        stream: select('theme'),
-        builder: (context, snapshot) {
-          return MaterialApp(
-            title: 'Flutter Demo',
-            theme: ThemeData(brightness: snapshot.data),
-            initialRoute: '/',
-            routes: {
-              '/': (_) => HomePage(),
-              '/code': (_) => CodeViewerPage(),
-              '/todo': (_) => TodoPage(),
-            },
-          );
-        });
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData.light(),
+      initialRoute: '/',
+      routes: {
+        '/': (_) => TodoPage(),
+        '/code': (_) => CodeViewerPage(),
+      },
+    );
   }
 }

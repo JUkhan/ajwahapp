@@ -13,8 +13,12 @@ class DrawerWidget extends StatelessWidget {
                 backgroundColor: Theme.of(context).accentColor,
                 backgroundImage: AssetImage('assets/launcher.png'),
               )),
-          getTile(context, 'Basic Ajwah_Bloc', Icons.home, '/'),
-          getTile(context, 'Todo List', Icons.done, '/todo'),
+          getTile(
+            context,
+            'Todos',
+            Icons.home,
+            '/',
+          ),
           Divider(),
           getTile(
             context,

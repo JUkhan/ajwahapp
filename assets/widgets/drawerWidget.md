@@ -16,10 +16,16 @@ class DrawerWidget extends StatelessWidget {
                 backgroundColor: Theme.of(context).accentColor,
                 backgroundImage: AssetImage('assets/launcher.png'),
               )),
-          getTile(context, 'Home', Icons.home, '/'),
           getTile(
             context,
-            'Code Viewer',
+            'Todos',
+            Icons.home,
+            '/',
+          ),
+          Divider(),
+          getTile(
+            context,
+            'Code View',
             Icons.book,
             '/code',
           ),

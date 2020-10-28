@@ -6,7 +6,6 @@ import 'package:uuid/uuid.dart';
 
 var _uuid = Uuid();
 
-/// A read-only description of a todo-item
 class Todo {
   Todo({
     this.description,
@@ -18,14 +17,23 @@ class Todo {
   final String description;
   final bool completed;
 
-  @override
-  String toString() {
-    return 'Todo(description: $description, completed: $completed)';
+  Todo copyWith({
+    String id,
+    String description,
+    bool completed,
+  }) {
+    return Todo(
+      id: id ?? this.id,
+      description: description ?? this.description,
+      completed: completed ?? this.completed,
+    );
   }
 }
 
+enum SearchCategory { All, Active, Completed }
+
 class TodoState {
-  final String searchCategory;
+  final SearchCategory searchCategory;
   final List<Todo> todos;
   TodoState({
     this.searchCategory,
@@ -33,7 +41,7 @@ class TodoState {
   });
 
   TodoState copyWith({
-    String searchCategory,
+    SearchCategory searchCategory,
     List<Todo> todos,
   }) {
     return TodoState(
@@ -42,11 +50,5 @@ class TodoState {
     );
   }
 }
-
-/// Some keys used for testing
-final addTodoKey = UniqueKey();
-final activeFilterKey = UniqueKey();
-final completedFilterKey = UniqueKey();
-final allFilterKey = UniqueKey();
 
 ```

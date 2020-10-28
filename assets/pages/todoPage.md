@@ -1,51 +1,42 @@
 **todoPage.dart**
 
 ```dart
-import 'package:ajwah_bloc/ajwah_bloc.dart';
 import 'package:flutter/material.dart';
-import '../states/todoState.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hello_world/states/todoState.dart';
+import '../widgets/error.dart';
+import '../widgets/loading.dart';
+import '../services/todoService.dart';
 import '../widgets/drawerWidget.dart';
 import '../widgets/todoItem.dart';
 import '../models/todo.dart';
 import '../widgets/toolbar.dart';
 import '../widgets/title.dart';
 
-class TodoPage extends StatefulWidget {
+class TodoPage extends HookWidget {
   const TodoPage({Key key}) : super(key: key);
 
   @override
-  _TodoPageState createState() => _TodoPageState();
-}
-
-class _TodoPageState extends State<TodoPage> {
-  TextEditingController newTodoController;
-
-  @override
-  void initState() {
-    newTodoController = TextEditingController();
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    newTodoController.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final newTodoController = useTextEditingController();
+    final todos = useStream(todos$, initialData: []).data;
+    useEffect(() {
+      registerTodoState();
+      loadTodos();
+      return null;
+    }, []);
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('todo list'),
+          title: Text('Todos'),
         ),
         drawer: DrawerWidget(),
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
           children: [
+            const Loading(),
+            const Errors(),
             const TitleWidget(),
             TextField(
               key: addTodoKey,
@@ -54,43 +45,31 @@ class _TodoPageState extends State<TodoPage> {
                 labelText: 'What needs to be done?',
               ),
               onSubmitted: (value) {
-                dispatch(
-                    TodoAction(type: TodoActionTypes.add, description: value));
+                addTodo(Todo(description: value));
                 newTodoController.clear();
               },
             ),
             const SizedBox(height: 42),
             const Toolbar(),
-            StreamBuilder<List<Todo>>(
-              stream: getFilteredTodos(),
-              initialData: [],
-              builder: (context, snapshot) {
-                final todos = snapshot.data;
-                return Column(
-                  children: [
-                    for (var i = 0; i < todos.length; i++) ...[
-                      if (i > 0) const Divider(height: 0),
-                      Dismissible(
-                        key: ValueKey(todos[i].id),
-                        onDismissed: (_) {
-                          dispatch(TodoAction(
-                              type: TodoActionTypes.remove, id: todos[i].id));
-                        },
-                        child: TodoItem(
-                          //key: Key(todos[i].id),
-                          todo: todos[i],
-                        ),
-                      )
-                    ]
-                  ],
-                );
-              },
-            ),
+            ...[
+              for (var i = 0; i < todos.length; i++) ...[
+                if (i > 0) const Divider(height: 0),
+                Dismissible(
+                  key: ValueKey(todos[i].id),
+                  onDismissed: (_) {
+                    removeTodo(todos[i]);
+                  },
+                  child: TodoItem(
+                    //key: Key(todos[i].id),
+                    todo: todos[i],
+                  ),
+                )
+              ]
+            ],
           ],
         ),
       ),
     );
   }
 }
-
 ```

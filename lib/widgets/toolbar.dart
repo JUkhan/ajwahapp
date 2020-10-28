@@ -1,89 +1,58 @@
-import 'package:ajwah_bloc/ajwah_bloc.dart';
 import 'package:flutter/material.dart';
-import '../states/todoState.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import '../models/todo.dart';
+import '../services/todoService.dart';
 
-class Toolbar extends StatelessWidget {
+class Toolbar extends HookWidget {
   const Toolbar({
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Color textColorFor(String category, String value) {
+    Color textColorFor(SearchCategory category, SearchCategory value) {
       return category == value ? Colors.blue : null;
     }
 
-    final searchCategory$ = select<TodoState>('todo')
-        .map((state) => state.searchCategory)
-        .distinct();
-
+    final sc = useStream(searchCategory$, initialData: SearchCategory.All).data;
+    final activeTodosInfo = useStream(activeItem$, initialData: '').data;
     return Material(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          StreamBuilder<int>(
-              stream: select<TodoState>('todo').map((state) =>
-                  state.todos.where((todo) => !todo.completed).length),
-              initialData: 0,
-              builder: (context, snapshot) {
-                return Expanded(
-                  child: Text(
-                    '${snapshot.data} items left',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              }),
-          Tooltip(
-            key: allFilterKey,
-            message: 'All todos',
-            child: StreamBuilder<String>(
-                stream: searchCategory$,
-                initialData: '',
-                builder: (context, snapshot) {
-                  return FlatButton(
-                    onPressed: () =>
-                        dispatch(TodoFilterAction(type: TodoActionTypes.all)),
-                    visualDensity: VisualDensity.compact,
-                    textColor: textColorFor(TodoActionTypes.all, snapshot.data),
-                    child: const Text('All'),
-                  );
-                }),
+          Expanded(
+            child: Text(
+              activeTodosInfo,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           Tooltip(
-            key: activeFilterKey,
-            message: 'Only uncompleted todos',
-            child: StreamBuilder<Object>(
-                stream: searchCategory$,
-                initialData: '',
-                builder: (context, snapshot) {
-                  return FlatButton(
-                    onPressed: () => dispatch(
-                        TodoFilterAction(type: TodoActionTypes.active)),
-                    visualDensity: VisualDensity.compact,
-                    textColor:
-                        textColorFor(TodoActionTypes.active, snapshot.data),
-                    child: const Text('Active'),
-                  );
-                }),
-          ),
+              key: allFilterKey,
+              message: 'All todos',
+              child: FlatButton(
+                onPressed: () => allTodos(),
+                visualDensity: VisualDensity.compact,
+                textColor: textColorFor(SearchCategory.All, sc),
+                child: const Text('All'),
+              )),
           Tooltip(
-            key: completedFilterKey,
-            message: 'Only completed todos',
-            child: StreamBuilder<Object>(
-                stream: searchCategory$,
-                initialData: '',
-                builder: (context, snapshot) {
-                  return FlatButton(
-                    onPressed: () => dispatch(
-                        TodoFilterAction(type: TodoActionTypes.completed)),
-                    visualDensity: VisualDensity.compact,
-                    textColor:
-                        textColorFor(TodoActionTypes.completed, snapshot.data),
-                    child: const Text('Completed'),
-                  );
-                }),
-          ),
+              key: activeFilterKey,
+              message: 'Only uncompleted todos',
+              child: FlatButton(
+                onPressed: () => activeTodos(),
+                visualDensity: VisualDensity.compact,
+                textColor: textColorFor(SearchCategory.Active, sc),
+                child: const Text('Active'),
+              )),
+          Tooltip(
+              key: completedFilterKey,
+              message: 'Only completed todos',
+              child: FlatButton(
+                onPressed: () => completedTodos(),
+                visualDensity: VisualDensity.compact,
+                textColor: textColorFor(SearchCategory.Completed, sc),
+                child: const Text('Completed'),
+              )),
         ],
       ),
     );
