@@ -9,9 +9,11 @@ class Errors extends HookWidget {
   Widget build(BuildContext context) {
     final error = useStream(error$, initialData: '').data;
     return Container(
+      alignment: Alignment.center,
       child: Text(
         error,
-        style: const TextStyle(color: Colors.red),
+        style:
+            Theme.of(context).textTheme.subtitle1.copyWith(color: Colors.red),
       ),
     );
   }

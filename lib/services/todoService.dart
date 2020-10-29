@@ -44,7 +44,7 @@ final error$ = Rx.merge([
   _errorEnd$.map((event) => '')
 ]).asBroadcastStream();
 
-final loading$ = Rx.merge([_start$, _end$, _errorEnd$.map((event) => false)])
+final loading$ = Rx.merge([_start$, _end$, _error$.map((event) => false)])
     .startWith(false)
     .asBroadcastStream();
 
